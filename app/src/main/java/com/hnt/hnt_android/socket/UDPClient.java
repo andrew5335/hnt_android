@@ -28,7 +28,7 @@ public class UDPClient {
             buf = msg.getBytes();
             buf2 = new byte[1024];
             DatagramPacket send
-                    = new DatagramPacket(buf, buf.length, address, 1113);
+                    = new DatagramPacket(buf, buf.length, address, port);
             socket.send(send);
             DatagramPacket receive = new DatagramPacket(buf2, buf2.length);
             socket.receive(receive);

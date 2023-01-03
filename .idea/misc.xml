@@ -3,6 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/activity_hntmain.xml" value="0.5348958333333333" />
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/activity_main.xml" value="0.5494791666666666" />
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/enter_pw_dialog.xml" value="0.29583333333333334" />
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/item_accesspoint.xml" value="0.5348958333333333" />
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/popup_wifi.xml" value="0.29583333333333334" />
+        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/wifi_item.xml" value="0.29583333333333334" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_main.xml" value="0.1703125" />
       </map>
     </option>
