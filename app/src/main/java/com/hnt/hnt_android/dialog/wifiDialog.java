@@ -22,22 +22,17 @@ public class wifiDialog {
     private Button okButton;
     private Button cancelButton;
 
-
-
     public wifiDialog(Context mContext) {
         this.context = mContext;
     }
 
-
     // 호출할 다이얼로그 함수를 정의한다.
     public void callFunction(final String ssid) {
-
 
         // 커스텀 다이얼로그를 정의하기위해 Dialog클래스를 생성한다.
         final Dialog dlg = new Dialog(context);
         // 액티비티의 타이틀바를 숨긴다.
         dlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         dlg.setContentView(R.layout.enter_pw_dialog);
 
         // 커스텀 다이얼로그의 각 위젯들을 정의한다.
@@ -46,8 +41,6 @@ public class wifiDialog {
         okButton = (Button) dlg.findViewById(R.id.okButton);
         cancelButton = (Button) dlg.findViewById(R.id.cancelButton);
         title.setText(ssid);
-
-
 
         // 커스텀 다이얼로그를 노출한다.
         dlg.show();
@@ -58,7 +51,6 @@ public class wifiDialog {
             public void onClick(View view) {
                 // '확인' 버튼 클릭시
                 pw[0] = message.getText().toString();
-
 
                 Log.d("wifi","wifiDialog\npw : " + pw[0]);
                 //ssid와 pw전달
@@ -76,12 +68,10 @@ public class wifiDialog {
                 dlg.dismiss();
             }
         });
-
     }
 
     //Event Bus
     public class WifiData {
-
         public final String ssid;
         public final String pw;
 

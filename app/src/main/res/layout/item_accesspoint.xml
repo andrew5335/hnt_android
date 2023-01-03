@@ -21,7 +21,7 @@
                 android:id="@+id/ssidTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12dp"/>
+                android:textSize="10dp"/>
             <TextView
                 app:layout_constraintStart_toStartOf="@+id/ssidTextView"
                 app:layout_constraintTop_toBottomOf="@+id/ssidTextView"

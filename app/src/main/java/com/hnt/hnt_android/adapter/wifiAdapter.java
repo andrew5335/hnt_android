@@ -20,10 +20,7 @@ public class wifiAdapter extends RecyclerView.Adapter<wifiAdapter.MyViewHolder> 
     private List<ScanResult> items;
     private Context mContext;
 
-
-
     public wifiAdapter(List<ScanResult> items){
-
         this.items=items;
     }
 
@@ -31,9 +28,7 @@ public class wifiAdapter extends RecyclerView.Adapter<wifiAdapter.MyViewHolder> 
     @Override
     public wifiAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.wifi_item , parent, false);
-
         mContext = parent.getContext();
-
         return new MyViewHolder(itemView);
     }
 
@@ -69,23 +64,14 @@ public class wifiAdapter extends RecyclerView.Adapter<wifiAdapter.MyViewHolder> 
                         // 입력된 pw을 저장한다.
                         wifiDialog customDialog = new wifiDialog(mContext);
                         customDialog.callFunction(ssid);
-
                     }
-
                 }
             });
 
-
             tvWifiName=itemView.findViewById(R.id.tv_wifiName);
-
         }
         public void setItem(ScanResult item){
             tvWifiName.setText(item.SSID);
-
         }
     }
-
-
-
-
 }

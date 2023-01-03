@@ -9,13 +9,15 @@
     android:background="#dccf">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:paddingStart="20dp"
+        android:paddingStart="10dp"
         android:paddingTop="20dp"
         android:id="@+id/rv_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="left"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
+        android:textAlignment="gravity"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
