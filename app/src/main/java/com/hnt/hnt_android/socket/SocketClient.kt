@@ -1,10 +1,12 @@
 package com.hnt.hnt_android.socket
 
+import android.net.InetAddresses
 import android.os.Handler
 import android.os.Looper
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
+import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.Socket
 
@@ -75,6 +77,8 @@ fun main() {
         socket.closeConnect()
     }
     **/
+    val hostAddress: String = InetAddress.getLocalHost().hostAddress
+    println("loopbackaddrress : " + hostAddress)
     val address: InetAddress = InetAddress.getByName("192.168.0.1")
     val client = UDPClient(address)
 
@@ -89,8 +93,8 @@ fun main() {
         println("1-1")
         Thread.sleep(1000)
         val client2 = UDPClient(address)
-        var result: String = client2.sendEcho(testData, 1113)
-        println("2 : " + result);
+        //var result: String = client2.sendEcho(testData, 1113)
+        //println("2 : " + result);
 
         //client2.close()
     }

@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="300dp"
     android:layout_height="500dp"
-    android:background="#dccf">
+    android:background="#FFA000">
 
     <androidx.recyclerview.widget.RecyclerView
         android:paddingStart="10dp"
@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
+        android:foregroundGravity="left"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
         android:textAlignment="gravity"

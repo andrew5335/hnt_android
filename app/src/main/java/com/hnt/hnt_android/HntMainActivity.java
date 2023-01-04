@@ -26,6 +26,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -47,12 +48,14 @@ import com.hnt.hnt_android.dialog.wifiDialog;
 import com.hnt.hnt_android.handler.BackpressHandler;
 import com.hnt.hnt_android.manager.PreferenceManager;
 import com.hnt.hnt_android.script.WebAppInterface;
+import com.hnt.hnt_android.socket.UDPClient;
 import com.pedro.library.AutoPermissions;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -83,6 +86,8 @@ public class HntMainActivity extends AppCompatActivity {
 
     private BackpressHandler backpressHandler;
     private long backBtnTime = 0;
+
+    private String result = "";
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -300,11 +305,49 @@ public class HntMainActivity extends AppCompatActivity {
         if(null != wifi_ssid && !"".equals(wifi_ssid)) {
             if(null != wifi_pw && !"".equals(wifi_pw)) {
                 //wifi ssid와 비밀번호가 있을 경우 wifi 접속 시도
-                connectToAp(wifi_ssid, wifi_pw);
+                PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
+                PreferenceManager.setString(getApplicationContext(), "pw", wifi_pw);
+
+                String userId = PreferenceManager.getString(getApplicationContext(), "userid");
+                //connectToAp(wifi_ssid, wifi_pw);
+
+                new Thread(() -> {
+                    setSensor(userId, wifi_ssid, wifi_pw);
+                }).start();
             }
         }
 
         mPopupWindow.dismiss();
+    }
+
+    public void setSensor(String userId, String ssid, String passWord) {
+        Log.d("sensor", "Info : userId - " + userId + "/ ssid - " + ssid + "/ password - " + passWord);
+        if(null != userId && !"".equals(userId)) {
+            if(null != ssid && !"".equals(ssid)) {
+                if(null != passWord && !"".equals(passWord)) {
+                    try {
+                        int port = 1113;
+                        String getSensorInfoCmd = "CFG_GET";
+                        String setSensorInfoCmd = "CFG_SET&user=" + userId + "&ssid=" + ssid + "&passwd=" + passWord + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
+                        InetAddress addrress = InetAddress.getByName("192.168.0.1");
+                        UDPClient client = new UDPClient(addrress);
+
+                        result = client.sendEcho(getSensorInfoCmd, port);
+                        Log.d("sensor", "Info : " + result);
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                            }
+                        }, 0);
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        Log.e("Error", "Error : " + e.toString());
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -398,8 +441,8 @@ public class HntMainActivity extends AppCompatActivity {
     class AndroidBridge {
         @JavascriptInterface
         public void saveUserInfo(String str) {
-            Log.d("javascript", "in message : " + str);
-            PreferenceManager.setString(getApplicationContext(), "hnt", str);
+            Log.d("javascript", "userId : " + str);
+            PreferenceManager.setString(getApplicationContext(), "userid", str);
         }
     }
 }
