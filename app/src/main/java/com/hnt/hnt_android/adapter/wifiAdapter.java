@@ -56,12 +56,8 @@ public class wifiAdapter extends RecyclerView.Adapter<wifiAdapter.MyViewHolder> 
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION)
                     {
-                        // click event
-                        // ssid 저장
                         String ssid = items.get(pos).SSID;
 
-                        // pw 입력 다이얼로그를 호출한다.
-                        // 입력된 pw을 저장한다.
                         wifiDialog customDialog = new wifiDialog(mContext);
                         customDialog.callFunction(ssid);
                     }

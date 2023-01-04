@@ -1,25 +1,42 @@
 package com.hnt.hnt_android;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.DownloadListener;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
@@ -27,12 +44,18 @@ import android.widget.Toast;
 
 import com.hnt.hnt_android.adapter.wifiAdapter;
 import com.hnt.hnt_android.dialog.wifiDialog;
+import com.hnt.hnt_android.handler.BackpressHandler;
+import com.hnt.hnt_android.manager.PreferenceManager;
+import com.hnt.hnt_android.script.WebAppInterface;
 import com.pedro.library.AutoPermissions;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class HntMainActivity extends AppCompatActivity {
@@ -47,12 +70,21 @@ public class HntMainActivity extends AppCompatActivity {
     private WifiManager wifiManager;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
+    private View popupLayout;
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     public String wifi_ssid;
     public String wifi_pw ;
 
+    private ConnectivityManager connectivityManager;
+
+    private WebView webView =  null;
+
+    private BackpressHandler backpressHandler;
+    private long backBtnTime = 0;
+
+    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,15 +92,58 @@ public class HntMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hnt_main);
 
         btnConnect = (Button) findViewById(R.id.btn_connect);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        popupLayout = inflater.inflate(R.layout.popup_wifi, null);
+        recyclerView = popupLayout.findViewById(R.id.rv_recyclerview);
+        connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService((Context.WIFI_SERVICE));
+
+        webView = (WebView) findViewById(R.id.webview);
+        webView.setWebViewClient(new WebViewClient());  // 새 창 띄우기 않기
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+
+            }
+        });
+        webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setUseWideViewPort(true);
+        webView.getSettings().setSupportZoom(false);  // 줌 설정 여부
+        webView.getSettings().setBuiltInZoomControls(false);
+
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        webView.addJavascriptInterface(new AndroidBridge(), "hntInterface");
+
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setDefaultTextEncodingName("UTF-8");
+        webView.setWebContentsDebuggingEnabled(true);
+        //webView.addJavascriptInterface(new WebAppInterface(), "hntInterface");
+
         mContext = getApplicationContext();
+
+        backpressHandler = new BackpressHandler(this);
+
+        boolean wifiResult = wifiManager.isWifiEnabled();
+        if(!wifiResult) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Intent settingIntent = new Intent(Settings.Panel.ACTION_WIFI);
+                startActivityForResult(settingIntent, 1);
+            } else {
+                wifiManager.setWifiEnabled(true);
+            }
+        }
+
+
 
         try{
             EventBus.getDefault().register(this);
         } catch (Exception e){
 
         }
-
-        //AutoPermissions.Companion.loadAllPermissions((Activity) mContext,101);
 
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +162,10 @@ public class HntMainActivity extends AppCompatActivity {
                 return ;
             }
         }
+
+        AutoPermissions.Companion.loadAllPermissions(this,101);
+
+        webView.loadUrl("http://hntnas.diskstation.me:8820/main/main");
     }
 
     @Override
@@ -95,11 +174,7 @@ public class HntMainActivity extends AppCompatActivity {
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     wifiScan();
-                    //Log.d("wifi", "In this");
-
                 } else {
-                    // Permission Denied
-                    //Log.d("wifi", "permission denied");
                 }
                 break;
             default:
@@ -108,12 +183,6 @@ public class HntMainActivity extends AppCompatActivity {
     }
 
     private void setMyPopupWindow(){
-
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View popupLayout = inflater.inflate(R.layout.popup_wifi, null);
-
-        recyclerView = popupLayout.findViewById(R.id.rv_recyclerview);
-
         popupLayout.setOnTouchListener(new View.OnTouchListener() {
 
             private float mDx;
@@ -183,14 +252,29 @@ public class HntMainActivity extends AppCompatActivity {
     private void scanSuccess() {
         // 스캔 성공시 저장된 list를 recycler view를 통해 보여줌
         List<ScanResult> results = wifiManager.getScanResults();
-        mAdapter = new wifiAdapter(results);
+        List<ScanResult> tmpWifiList = new ArrayList<ScanResult>();
+        List<ScanResult> wifiList = new ArrayList<ScanResult>();
+
+        if(null != results && 0 < results.size()) {
+            for(int i=0; i < results.size(); i++) {
+                if(null != results.get(i).SSID && !"".equals(results.get(i).SSID)) {
+                    tmpWifiList.add(results.get(i));
+                }
+            }
+            HashSet<ScanResult> duplicate = new HashSet<ScanResult>(tmpWifiList);
+            wifiList = new ArrayList<ScanResult>(duplicate);
+
+        }
+
+        mAdapter = new wifiAdapter(wifiList);
         recyclerView.setAdapter(mAdapter);
 
         Log.d("wifi", "scan success");
         StringBuffer st = new StringBuffer();
-        for(ScanResult r : results ){
+        for(ScanResult r : wifiList ){
             if(null != r.SSID && !"".equals(r.SSID)) {
                 Log.d("wifi", "" + r);
+                Log.d("wifi", ":" + r.SSID);
                 st.append(r.SSID.trim());
                 st.append("\n");
             }
@@ -212,6 +296,14 @@ public class HntMainActivity extends AppCompatActivity {
         wifi_pw = event.pw;
 
         Log.d("wifi","setting\nssid : " + wifi_ssid + "   pw : " + wifi_pw);
+
+        if(null != wifi_ssid && !"".equals(wifi_ssid)) {
+            if(null != wifi_pw && !"".equals(wifi_pw)) {
+                //wifi ssid와 비밀번호가 있을 경우 wifi 접속 시도
+                connectToAp(wifi_ssid, wifi_pw);
+            }
+        }
+
         mPopupWindow.dismiss();
     }
 
@@ -223,11 +315,92 @@ public class HntMainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    public void connectToAp(String ssid, String password) {
+        WifiConfiguration wifiConfig = new WifiConfiguration();
+        wifiConfig.SSID = "\"ssid\"";
+        wifiConfig.wepKeys[0] = "\"password\"";
+        wifiConfig.priority = 999999;
+
+        String targetSsid = wifiConfig.SSID;
+
+        WifiInfo currentConnection = wifiManager.getConnectionInfo();
+        if(currentConnection.getSSID().equals(targetSsid)) {
+
+        } else {
+            Log.d("wifi", "targetSsid : " + targetSsid);
+            int networkId = getIdForConfiguredNetwork(targetSsid);
+            Log.d("wifi", "networkId : " + networkId);
+            if(networkId == -1) {
+                networkId = wifiManager.addNetwork(wifiConfig);
+            }
+
+            wifiManager.enableNetwork(networkId, true);
+        }
+    }
+
+    public int getIdForConfiguredNetwork(String ssid) {
+        Log.d("wifi", "ssid : " + ssid);
+        List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+        for (WifiConfiguration configNetwork : configuredNetworks) {
+            if (configNetwork.SSID.equals(ssid)) {
+                return configNetwork.networkId;
+            }
+        }
+        return -1;
+    }
+
+    public void bindProcessToNetwork() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Network network= getNetworkObjectForCurrentWifiConnection();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                connectivityManager.bindProcessToNetwork(network);
+            } else {
+                ConnectivityManager.setProcessDefaultNetwork(network);
+            }
+        }
+    }
+    @Nullable
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public Network getNetworkObjectForCurrentWifiConnection() {
+        List<Network> networks = Arrays.asList(connectivityManager.getAllNetworks());
+        for (Network network : networks) {
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+            if (capabilities.hasTransport
+                    (NetworkCapabilities.TRANSPORT_WIFI)) {
+                return network;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        long curTime = System.currentTimeMillis();
+        long gapTime = curTime - backBtnTime;
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else if (0 <= gapTime && 2000 >= gapTime) {
+            super.onBackPressed();
+        } else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+
 
     }
+
+    class AndroidBridge {
+        @JavascriptInterface
+        public void saveUserInfo(String str) {
+            Log.d("javascript", "in message : " + str);
+            PreferenceManager.setString(getApplicationContext(), "hnt", str);
+        }
+    }
 }
+

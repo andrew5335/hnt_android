@@ -85,7 +85,7 @@ fun main() {
     println("1 : " + getResult)
     client.close()
 
-    if(getResult !== null && getResult !== "") {
+    if(getResult != null && getResult != "") {
         println("1-1")
         Thread.sleep(1000)
         val client2 = UDPClient(address)
