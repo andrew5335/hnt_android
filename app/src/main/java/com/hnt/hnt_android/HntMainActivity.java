@@ -1,5 +1,6 @@
 package com.hnt.hnt_android;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,10 +20,12 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +47,8 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.hnt.hnt_android.adapter.wifiAdapter;
+import com.hnt.hnt_android.api.RetroClient;
+import com.hnt.hnt_android.api.model.Result;
 import com.hnt.hnt_android.dialog.wifiDialog;
 import com.hnt.hnt_android.handler.BackpressHandler;
 import com.hnt.hnt_android.manager.PreferenceManager;
@@ -61,6 +66,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HntMainActivity extends AppCompatActivity {
 
     private Context mContext;
@@ -77,6 +86,9 @@ public class HntMainActivity extends AppCompatActivity {
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
+    private int port = 113;
+    private String host = "192.168.0.1";
+
     public String wifi_ssid;
     public String wifi_pw ;
 
@@ -88,6 +100,8 @@ public class HntMainActivity extends AppCompatActivity {
     private long backBtnTime = 0;
 
     private String result = "";
+
+    private Call<Result> call;
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -101,6 +115,7 @@ public class HntMainActivity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupLayout = inflater.inflate(R.layout.popup_wifi, null);
         recyclerView = popupLayout.findViewById(R.id.rv_recyclerview);
+        mPopupWindow = new PopupWindow(popupLayout, 800, 900, true);
         connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         wifiManager = (WifiManager) getApplicationContext().getSystemService((Context.WIFI_SERVICE));
 
@@ -211,7 +226,7 @@ public class HntMainActivity extends AppCompatActivity {
             }
         });
 
-        mPopupWindow = new PopupWindow(popupLayout, 800, 900, true);
+        //mPopupWindow = new PopupWindow(popupLayout, 800, 900, true);
         mPopupWindow.showAtLocation(popupLayout, Gravity.CENTER, 0, 0);
         mPopupWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
         mPopupWindow.setOutsideTouchable(true);
@@ -326,21 +341,53 @@ public class HntMainActivity extends AppCompatActivity {
             if(null != ssid && !"".equals(ssid)) {
                 if(null != passWord && !"".equals(passWord)) {
                     try {
-                        int port = 1113;
                         String getSensorInfoCmd = "CFG_GET";
                         String setSensorInfoCmd = "CFG_SET&user=" + userId + "&ssid=" + ssid + "&passwd=" + passWord + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
-                        InetAddress addrress = InetAddress.getByName("192.168.0.1");
-                        UDPClient client = new UDPClient(addrress);
+                        InetAddress address = InetAddress.getByName(host);
+                        UDPClient client = new UDPClient(address);
 
                         result = client.sendEcho(getSensorInfoCmd, port);
                         Log.d("sensor", "Info : " + result);
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
-                            }
-                        }, 0);
+
+                        if(null != result && !"".equals(result)) {
+                            client.close();
+
+                            UDPClient client2 = new UDPClient(address);
+                            // CFG_GET으로 받은 결과값 저장 처리 -> 서버 api 호출하여 DB 저장
+                            call = RetroClient.getApiService().insertSensorInfo(userId, result);
+                            call.enqueue(new Callback<Result>() {
+                                @Override
+                                public void onResponse(Call<Result> call, Response<Result> response) {
+                                    Result result = response.body();
+                                    String str = result.getResult();
+
+                                    if(null != str && !"".equals(str) && "success".equals(str)) {
+                                        try {
+                                            String setResult = "";
+                                            setResult = client2.sendEcho(setSensorInfoCmd, port);
+                                        } catch(Exception e) {
+                                            Log.e("HNT Error", "Error : " + e.toString());
+                                        } finally {
+                                            client2.close();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Result> call, Throwable t) {
+                                    Log.e("HNT Error", "Error : " + t.toString());
+                                }
+                            });
+
+                            // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                                }
+                            }, 0);
+                        }
                     } catch(Exception e) {
                         e.printStackTrace();
                         Log.e("Error", "Error : " + e.toString());
@@ -376,16 +423,43 @@ public class HntMainActivity extends AppCompatActivity {
         if(currentConnection.getSSID().equals(targetSsid)) {
 
         } else {
-            Log.d("wifi", "targetSsid : " + targetSsid);
-            int networkId = getIdForConfiguredNetwork(targetSsid);
-            Log.d("wifi", "networkId : " + networkId);
-            if(networkId == -1) {
-                networkId = wifiManager.addNetwork(wifiConfig);
-            }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder()
+                        .setSsid(ssid) //SSID 이름
+                        .setWpa2Passphrase(password) //비밀번호, 보안설정 WPA2
+                        .build();
 
-            wifiManager.enableNetwork(networkId, true);
+                NetworkRequest networkRequest = new NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI) //연결 Type
+                        .setNetworkSpecifier(wifiNetworkSpecifier)
+                        .build();
+
+                ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                connectivityManager.requestNetwork(networkRequest, networkCallback);
+            } else {
+                Log.d("wifi", "targetSsid : " + targetSsid);
+                int networkId = getIdForConfiguredNetwork(targetSsid);
+                Log.d("wifi", "networkId : " + networkId);
+                if (networkId == -1) {
+                    networkId = wifiManager.addNetwork(wifiConfig);
+                }
+
+                wifiManager.enableNetwork(networkId, true);
+            }
         }
     }
+
+    ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            Log.d("wifi", "onAvailable");
+        }
+
+        @Override
+        public void onUnavailable() {
+            Log.d("wifi", "onUnavailable");
+        }
+    };
 
     public int getIdForConfiguredNetwork(String ssid) {
         Log.d("wifi", "ssid : " + ssid);
