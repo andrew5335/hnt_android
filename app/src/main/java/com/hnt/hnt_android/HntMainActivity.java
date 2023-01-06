@@ -352,8 +352,9 @@ public class HntMainActivity extends AppCompatActivity {
                         if(null != result && !"".equals(result)) {
                             client.close();
 
-                            UDPClient client2 = new UDPClient(address);
                             // CFG_GET으로 받은 결과값 저장 처리 -> 서버 api 호출하여 DB 저장
+                            // CFG_GET으로 수신되는 정보 저장 필요없어 아래 내용 주석 처리
+                            /**
                             call = RetroClient.getApiService().insertSensorInfo(userId, result);
                             call.enqueue(new Callback<Result>() {
                                 @Override
@@ -378,15 +379,24 @@ public class HntMainActivity extends AppCompatActivity {
                                     Log.e("HNT Error", "Error : " + t.toString());
                                 }
                             });
+                             **/
 
                             // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
                             Handler handler = new Handler(Looper.getMainLooper());
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                                    UDPClient client2 = new UDPClient(address);
+                                    try {
+                                        result = client2.sendEcho(setSensorInfoCmd, port);
+                                    } catch(Exception e) {
+                                        Log.e("Error", "Error : " + e.toString());
+                                    } finally {
+                                        client2.close();
+                                    }
+                                    //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
                                 }
-                            }, 0);
+                            }, 500);
                         }
                     } catch(Exception e) {
                         e.printStackTrace();
