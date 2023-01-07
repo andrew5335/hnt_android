@@ -1,5 +1,9 @@
 package com.hnt.hnt_android;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -86,8 +90,8 @@ public class HntMainActivity extends AppCompatActivity {
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
-    private int port = 113;
-    private String host = "192.168.0.1";
+    private static final int port = 1113;
+    private static final String host = "192.168.0.1";
 
     public String wifi_ssid;
     public String wifi_pw ;
@@ -147,17 +151,17 @@ public class HntMainActivity extends AppCompatActivity {
 
         backpressHandler = new BackpressHandler(this);
 
-        boolean wifiResult = wifiManager.isWifiEnabled();
-        if(!wifiResult) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Intent settingIntent = new Intent(Settings.Panel.ACTION_WIFI);
-                startActivityForResult(settingIntent, 1);
-            } else {
-                wifiManager.setWifiEnabled(true);
-            }
+        /**
+        if(wifiResult) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setMyPopupWindow();
+                }
+            }, 1000);
         }
-
-
+         **/
 
         try{
             EventBus.getDefault().register(this);
@@ -168,8 +172,29 @@ public class HntMainActivity extends AppCompatActivity {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //가운데 버튼 클릭 시 wifi list를 보여줄 popupwindow를 띄운다.
-                setMyPopupWindow();
+
+                if(wifiManager.isWifiEnabled()) {
+                    WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                    if(!currentConnection.getSSID().contains("HBee")) {
+                        setMyPopupWindow();
+                    } else {
+                        String userId = "";
+                        String ssid = "";
+                        String password = "";
+
+                        userId = PreferenceManager.getString(getApplicationContext(), "userId");
+                        ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
+                        password = PreferenceManager.getString(getApplicationContext(), "password");
+
+                        if(null != userId && !"".equals(userId) && null != ssid && !"".equals(ssid) && null != password && !"".equals(password)) {
+                            setSensor(userId, ssid, password);
+                        } else {
+                            setMyPopupWindow();
+                        }
+                    }
+                } else {
+                    setMyPopupWindow();
+                }
             }
         });
 
@@ -320,84 +345,98 @@ public class HntMainActivity extends AppCompatActivity {
         if(null != wifi_ssid && !"".equals(wifi_ssid)) {
             if(null != wifi_pw && !"".equals(wifi_pw)) {
                 //wifi ssid와 비밀번호가 있을 경우 wifi 접속 시도
-                PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
-                PreferenceManager.setString(getApplicationContext(), "pw", wifi_pw);
+                //PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
+                //PreferenceManager.setString(getApplicationContext(), "pw", wifi_pw);
 
                 String userId = PreferenceManager.getString(getApplicationContext(), "userid");
-                //connectToAp(wifi_ssid, wifi_pw);
+                if(!wifi_ssid.contains("HBee")) {
+                    PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
+                    PreferenceManager.setString(getApplicationContext(), "password", wifi_pw);
+                    connectToAp(wifi_ssid, wifi_pw);
+                } else {
+                    WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                    Log.d("sensor", "current ssid : " + currentConnection.getSSID());
+                    if(currentConnection.getSSID().equals(wifi_ssid)) {
 
-                new Thread(() -> {
-                    setSensor(userId, wifi_ssid, wifi_pw);
-                }).start();
+                    } else {
+                        connectToAp(wifi_ssid, wifi_pw);
+                    }
+
+                    try {
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                setSensor(userId, wifi_ssid, wifi_pw);
+                            }
+                        }, 3000);
+                    } catch(Exception e) {
+
+                    }
+                }
             }
         }
 
         mPopupWindow.dismiss();
     }
 
-    public void setSensor(String userId, String ssid, String passWord) {
-        Log.d("sensor", "Info : userId - " + userId + "/ ssid - " + ssid + "/ password - " + passWord);
+    public void setSensor(String userId, String ssid, String password) {
+        if(ssid.contains("HBee")) {
+            ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
+            password = PreferenceManager.getString(getApplicationContext(), "password");
+        }
+
+        Log.d("sensor", "Info : userId - " + userId + "/ ssid - " + ssid + "/ password - " + password);
         if(null != userId && !"".equals(userId)) {
             if(null != ssid && !"".equals(ssid)) {
-                if(null != passWord && !"".equals(passWord)) {
+                if(null != password && !"".equals(password)) {
+
                     try {
-                        String getSensorInfoCmd = "CFG_GET";
-                        String setSensorInfoCmd = "CFG_SET&user=" + userId + "&ssid=" + ssid + "&passwd=" + passWord + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
-                        InetAddress address = InetAddress.getByName(host);
-                        UDPClient client = new UDPClient(address);
+                        String finalSsid = ssid;
+                        String filanPassword = password;
+                        Log.d("sensor", "Info finalSsid: " + finalSsid);
+                        Log.d("sensor", "Info finalPassword : " + filanPassword);
+                        new Thread(() -> {
+                            try {
+                                String getSensorInfoCmd = "CFG_GET";
+                                String setSensorInfoCmd = "CFG_SET&user=" + userId + "&ssid=" + finalSsid + "&passwd=" + filanPassword + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
+                                InetAddress address = InetAddress.getByName(host);
+                                UDPClient client = new UDPClient(address);
 
-                        result = client.sendEcho(getSensorInfoCmd, port);
-                        Log.d("sensor", "Info : " + result);
+                                Log.d("sensor", "Info : " + host);
 
-                        if(null != result && !"".equals(result)) {
-                            client.close();
+                                result = client.sendEcho(getSensorInfoCmd, port);
 
-                            // CFG_GET으로 받은 결과값 저장 처리 -> 서버 api 호출하여 DB 저장
-                            // CFG_GET으로 수신되는 정보 저장 필요없어 아래 내용 주석 처리
-                            /**
-                            call = RetroClient.getApiService().insertSensorInfo(userId, result);
-                            call.enqueue(new Callback<Result>() {
-                                @Override
-                                public void onResponse(Call<Result> call, Response<Result> response) {
-                                    Result result = response.body();
-                                    String str = result.getResult();
+                                Log.d("sensor", "Info : " + result);
 
-                                    if(null != str && !"".equals(str) && "success".equals(str)) {
-                                        try {
-                                            String setResult = "";
-                                            setResult = client2.sendEcho(setSensorInfoCmd, port);
-                                        } catch(Exception e) {
-                                            Log.e("HNT Error", "Error : " + e.toString());
-                                        } finally {
-                                            client2.close();
-                                        }
-                                    }
-                                }
+                                if(null != result && !"".equals(result)) {
+                                    client.close();
 
-                                @Override
-                                public void onFailure(Call<Result> call, Throwable t) {
-                                    Log.e("HNT Error", "Error : " + t.toString());
-                                }
-                            });
-                             **/
-
-                            // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
-                            Handler handler = new Handler(Looper.getMainLooper());
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
+                                    Thread.sleep(1000);
                                     UDPClient client2 = new UDPClient(address);
                                     try {
                                         result = client2.sendEcho(setSensorInfoCmd, port);
-                                    } catch(Exception e) {
+                                        Log.d("sensor", "Info : " + result);
+                                    } catch (Exception e) {
                                         Log.e("Error", "Error : " + e.toString());
                                     } finally {
                                         client2.close();
                                     }
-                                    //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+
+                                    // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
+                                    Handler handler = new Handler(Looper.getMainLooper());
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                                        }
+                                    }, 0);
                                 }
-                            }, 500);
-                        }
+                            } catch(Exception e) {
+                                Log.e("Error", "Error : " + e.toString());
+                            }
+                        }).start();
+
                     } catch(Exception e) {
                         e.printStackTrace();
                         Log.e("Error", "Error : " + e.toString());
@@ -422,6 +461,25 @@ public class HntMainActivity extends AppCompatActivity {
     }
 
     public void connectToAp(String ssid, String password) {
+Log.d("sensor", "111");
+        if(wifiManager.isWifiEnabled()) {
+            WifiInfo currentConnection = wifiManager.getConnectionInfo();
+            Log.d("sensor", "cur ssid : " + currentConnection.getSSID());
+            if(!currentConnection.getSSID().contains("HBee")) {
+                Intent settingIntent = new Intent(Settings.Panel.ACTION_WIFI);
+                //startActivityForResult(settingIntent, 1);
+                //startActivityResult.launch(settingIntent);
+                //wifiManager.setWifiEnabled(false);
+            }
+        } else {
+            Intent settingIntent = new Intent(Settings.Panel.ACTION_WIFI);
+            startActivityForResult(settingIntent, 1);
+            startActivityResult.launch(settingIntent);
+        }
+
+
+        WifiInfo currentConnection = wifiManager.getConnectionInfo();
+
         WifiConfiguration wifiConfig = new WifiConfiguration();
         wifiConfig.SSID = "\"ssid\"";
         wifiConfig.wepKeys[0] = "\"password\"";
@@ -429,11 +487,11 @@ public class HntMainActivity extends AppCompatActivity {
 
         String targetSsid = wifiConfig.SSID;
 
-        WifiInfo currentConnection = wifiManager.getConnectionInfo();
-        if(currentConnection.getSSID().equals(targetSsid)) {
+        if (currentConnection.getSSID().equals(targetSsid)) {
 
         } else {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Log.d("sensor", "222");
                 WifiNetworkSpecifier wifiNetworkSpecifier = new WifiNetworkSpecifier.Builder()
                         .setSsid(ssid) //SSID 이름
                         .setWpa2Passphrase(password) //비밀번호, 보안설정 WPA2
@@ -444,9 +502,15 @@ public class HntMainActivity extends AppCompatActivity {
                         .setNetworkSpecifier(wifiNetworkSpecifier)
                         .build();
 
-                ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkRequest.Builder networkRequestBuilder = new NetworkRequest.Builder();
+                networkRequestBuilder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+                networkRequestBuilder.setNetworkSpecifier(wifiNetworkSpecifier);
+                networkRequestBuilder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+
+                connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 connectivityManager.requestNetwork(networkRequest, networkCallback);
             } else {
+                Log.d("sensor", "333");
                 Log.d("wifi", "targetSsid : " + targetSsid);
                 int networkId = getIdForConfiguredNetwork(targetSsid);
                 Log.d("wifi", "networkId : " + networkId);
@@ -457,12 +521,15 @@ public class HntMainActivity extends AppCompatActivity {
                 wifiManager.enableNetwork(networkId, true);
             }
         }
+
     }
 
     ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
             Log.d("wifi", "onAvailable");
+            connectivityManager.bindProcessToNetwork(network);
         }
 
         @Override
@@ -529,5 +596,16 @@ public class HntMainActivity extends AppCompatActivity {
             PreferenceManager.setString(getApplicationContext(), "userid", str);
         }
     }
+
+    ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Log.d("sensor", "ok");
+                }
+            }
+    });
 }
 

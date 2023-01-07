@@ -1,5 +1,7 @@
 package com.hnt.hnt_android.socket;
 
+import android.util.Log;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,6 +25,7 @@ public class UDPClient {
     }
 
     public String sendEcho(String msg, int port) throws Exception {
+        //Log.d("sensor", "Info : " + msg + " / port : " + port);
         String received = "";
         try {
             buf = msg.getBytes();
@@ -38,6 +41,7 @@ public class UDPClient {
             e.printStackTrace();
         }
 
+        //Log.d("sensor", "Info : " + received);
         return received;
     }
 

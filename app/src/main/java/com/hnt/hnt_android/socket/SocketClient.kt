@@ -82,7 +82,7 @@ fun main() {
     val address: InetAddress = InetAddress.getByName("192.168.0.1")
     val client = UDPClient(address)
 
-    val testData = "CFG_SET&user=andrew2767&ssid=andrew-iptime&passwd=90836242ab&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5"
+    val testData = "CFG_SET&userId=andrew5335&ssid=andrew-iptime&passwd=90836242ab&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5"
     val testData2 = "CFG_GET"
 
     var getResult: String = client.sendEcho(testData2, 1113)
@@ -93,9 +93,9 @@ fun main() {
         println("1-1")
         Thread.sleep(1000)
         val client2 = UDPClient(address)
-        //var result: String = client2.sendEcho(testData, 1113)
-        //println("2 : " + result);
+        var result: String = client2.sendEcho(testData, 1113)
+        println("2 : " + result);
 
-        //client2.close()
+        client2.close()
     }
 }
