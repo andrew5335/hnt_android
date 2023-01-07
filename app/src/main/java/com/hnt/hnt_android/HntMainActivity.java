@@ -473,7 +473,7 @@ Log.d("sensor", "111");
             }
         } else {
             Intent settingIntent = new Intent(Settings.Panel.ACTION_WIFI);
-            startActivityForResult(settingIntent, 1);
+            //startActivityForResult(settingIntent, 1);
             startActivityResult.launch(settingIntent);
         }
 
