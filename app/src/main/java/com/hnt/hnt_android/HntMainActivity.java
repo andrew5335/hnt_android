@@ -470,7 +470,7 @@ public class HntMainActivity extends AppCompatActivity {
                         new Thread(() -> {
                             try {
                                 String getSensorInfoCmd = "CFG_GET";
-                                String setSensorInfoCmd = "CFG_SET&user=" + userId + "&ssid=" + finalSsid + "&passwd=" + filanPassword + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
+                                String setSensorInfoCmd = "CFG_SET&userId=" + userId + "&ssid=" + finalSsid + "&passwd=" + filanPassword + "&dhcp=1&rtuip=192.168.10.250&submask=255.255.255.0&gwip=192.168.10.1&dns=8.8.8.8&subdns=1.1.1.1&brkdomain=hntnas.diskstation.me&brkport=1883&brkid=hnt1&brkpw=abcde&duty=5";
                                 InetAddress address = InetAddress.getByName(host);
                                 UDPClient client = new UDPClient(address);
 
