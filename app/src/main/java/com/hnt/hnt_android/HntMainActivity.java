@@ -117,6 +117,8 @@ public class HntMainActivity extends AppCompatActivity {
     private Button cancelButton;
     private String currentSsid;
 
+    private String userId = "";
+
     @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,7 +220,7 @@ public class HntMainActivity extends AppCompatActivity {
                         String nowSsid = currentConnection.getSSID();
 
                         if(nowSsid.contains("HBee")) {
-                            String userId = PreferenceManager.getString(getApplicationContext(), "userId");
+                            userId = PreferenceManager.getString(getApplicationContext(), "userId");
                             pw[0] = message.getText().toString();
                             Log.d("wifi", "wifiDialog\npw : " + pw[0]);
                             String ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
@@ -526,6 +528,7 @@ public class HntMainActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
