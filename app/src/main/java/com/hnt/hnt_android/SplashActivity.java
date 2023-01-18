@@ -68,15 +68,28 @@ public class SplashActivity extends AppCompatActivity {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Log.d("sensor", "ok");
                 } else {
-                    Log.d("sensor", "result : " + result.getResultCode());
-                    WifiInfo currentConnection = wifiManager.getConnectionInfo();
-                    currentSsid = currentConnection.getSSID();
-                    Log.d("sensor", "current ssid : " + currentSsid);
-                    PreferenceManager.setString(getApplicationContext(), "ssid", currentSsid);
+                    if(wifiManager.isWifiEnabled()) {
+                        Log.d("sensor", "result : " + result.getResultCode());
+                        WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                        currentSsid = currentConnection.getSSID();
+                        Log.d("sensor", "current ssid : " + currentSsid);
 
-                    Intent hntMain = new Intent(SplashActivity.this, HntMainActivity.class);
-                    startActivityResult.launch(hntMain);
-                    finish();
+                        if(null != currentSsid && !"".equals(currentSsid) && !currentSsid.contains("unknown")) {
+                            PreferenceManager.setString(getApplicationContext(), "ssid", currentSsid);
+
+                            Intent hntMain = new Intent(SplashActivity.this, HntMainActivity.class);
+                            startActivityResult.launch(hntMain);
+                            finish();
+                        } else {
+                            Intent settingIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                            //startActivityForResult(settingIntent, 1);
+                            startActivityResult.launch(settingIntent);
+                        }
+                    } else {
+                        Intent settingIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                        //startActivityForResult(settingIntent, 1);
+                        startActivityResult.launch(settingIntent);
+                    }
                 }
             }
     });
