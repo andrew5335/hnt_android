@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,14 +41,17 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hnt.hnt_android.adapter.wifiAdapter;
@@ -106,6 +110,12 @@ public class HntMainActivity extends AppCompatActivity {
     private String result = "";
 
     private Call<Result> call;
+
+    private EditText message;
+    private TextView title;
+    private Button okButton;
+    private Button cancelButton;
+    private String currentSsid;
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -169,32 +179,93 @@ public class HntMainActivity extends AppCompatActivity {
 
         }
 
+        if(wifiManager.isWifiEnabled()) {
+            WifiInfo currentConnection = wifiManager.getConnectionInfo();
+            currentSsid = currentConnection.getSSID();
+            Log.d("sensor", "current ssid : " + currentSsid);
+            //PreferenceManager.setString(getApplicationContext(), "ssid", currentSsid);
+        } else {
+            Intent settingIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            //startActivityForResult(settingIntent, 1);
+            startActivityResult.launch(settingIntent);
+        }
+
+        Dialog dlg = new Dialog(this);
+        dlg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(wifiManager.isWifiEnabled()) {
-                    WifiInfo currentConnection = wifiManager.getConnectionInfo();
-                    if(!currentConnection.getSSID().contains("HBee")) {
-                        setMyPopupWindow();
-                    } else {
-                        String userId = "";
-                        String ssid = "";
-                        String password = "";
+                // 액티비티의 타이틀바를 숨긴다.
+                dlg.setContentView(R.layout.enter_pw_dialog);
 
-                        userId = PreferenceManager.getString(getApplicationContext(), "userId");
-                        ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
-                        password = PreferenceManager.getString(getApplicationContext(), "password");
+                // 커스텀 다이얼로그의 각 위젯들을 정의한다.
+                message = (EditText) dlg.findViewById(R.id.message);
+                title = (TextView) dlg.findViewById(R.id.title);
+                okButton = (Button) dlg.findViewById(R.id.okButton);
+                cancelButton = (Button) dlg.findViewById(R.id.cancelButton);
+                title.setText(currentSsid);
 
-                        if(null != userId && !"".equals(userId) && null != ssid && !"".equals(ssid) && null != password && !"".equals(password)) {
-                            setSensor(userId, ssid, password);
+                // 커스텀 다이얼로그를 노출한다.
+                dlg.show();
+
+                final String[] pw = new String[1];
+                okButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                        String nowSsid = currentConnection.getSSID();
+
+                        if(nowSsid.contains("HBee")) {
+                            String userId = PreferenceManager.getString(getApplicationContext(), "userId");
+                            pw[0] = message.getText().toString();
+                            Log.d("wifi", "wifiDialog\npw : " + pw[0]);
+                            String ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
+
+                            setSensor(userId, ssid, pw[0]);
+                            dlg.dismiss();
                         } else {
-                            setMyPopupWindow();
+                            Intent settingIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                            //startActivityForResult(settingIntent, 1);
+                            startActivityResult.launch(settingIntent);
+                            dlg.dismiss();
                         }
                     }
-                } else {
-                    setMyPopupWindow();
-                }
+                });
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplicationContext(), "취소 했습니다.", Toast.LENGTH_SHORT).show();
+
+                        // 커스텀 다이얼로그를 종료한다.
+                        dlg.dismiss();
+                    }
+                });
+                /**
+                 if(wifiManager.isWifiEnabled()) {
+                 WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                 if(!currentConnection.getSSID().contains("HBee")) {
+                 setMyPopupWindow();
+                 } else {
+                 String userId = "";
+                 String ssid = "";
+                 String password = "";
+
+                 userId = PreferenceManager.getString(getApplicationContext(), "userId");
+                 ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
+                 password = PreferenceManager.getString(getApplicationContext(), "password");
+
+                 if(null != userId && !"".equals(userId) && null != ssid && !"".equals(ssid) && null != password && !"".equals(password)) {
+                 setSensor(userId, ssid, password);
+                 } else {
+                 setMyPopupWindow();
+                 }
+                 }
+                 } else {
+                 setMyPopupWindow();
+                 }
+                 **/
             }
         });
 
@@ -579,11 +650,13 @@ Log.d("sensor", "111");
         long gapTime = curTime - backBtnTime;
         if (webView.canGoBack()) {
             webView.goBack();
-        } else if (0 <= gapTime && 2000 >= gapTime) {
-            super.onBackPressed();
         } else {
-            backBtnTime = curTime;
-            Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            //backBtnTime = curTime;
+            //Toast.makeText(this, "한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            //super.onBackPressed();
+            finishAffinity();
+            System.runFinalization();
+            System.exit(0);
         }
 
 
