@@ -33,7 +33,7 @@
         android:layout_marginTop="376dp"
         android:layout_marginEnd="92dp"
         android:layout_marginBottom="26dp"
-        android:text="기기 설정을 위해 WIFI를 연결해주세요."
+        android:text="WIFI를 연결해주세요."
         android:textSize="16sp"
         android:textColor="#000000"
         app:layout_constraintBottom_toTopOf="@+id/wifi_setting"

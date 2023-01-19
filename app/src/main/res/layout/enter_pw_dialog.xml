@@ -5,6 +5,16 @@
     android:background="#ffffff">
 
     <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="기기 설정 시 HBee로 시작하는\n Wifi 연결이 필요합니다."
+        android:textColor="#000000"
+        android:textSize="16dp" />
+
+    <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="60dp"
