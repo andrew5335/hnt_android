@@ -6,10 +6,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import com.hnt.hnt_android.handler.BackpressHandler;
 import com.hnt.hnt_android.manager.PreferenceManager;
+import com.pedro.library.AutoPermissions;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -35,6 +38,8 @@ public class SplashActivity extends AppCompatActivity {
     private long backBtnTime = 0;
 
     private String currentSsid;
+
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,18 @@ public class SplashActivity extends AppCompatActivity {
                 //startActivityResult.launch(hntMain);
             }
         });
+
+        if ( Build.VERSION.SDK_INT >= 23){
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED  ){
+                requestPermissions(new String[]{
+                                android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+                return ;
+            }
+        }
+
+        AutoPermissions.Companion.loadAllPermissions(this,101);
     }
 
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(

@@ -220,7 +220,7 @@ public class HntMainActivity extends AppCompatActivity {
                         String nowSsid = currentConnection.getSSID();
 
                         if(nowSsid.contains("HBee")) {
-                            userId = PreferenceManager.getString(getApplicationContext(), "userId");
+                            userId = PreferenceManager.getString(getApplicationContext(), "userid");
                             pw[0] = message.getText().toString();
                             Log.d("wifi", "wifiDialog\npw : " + pw[0]);
                             String ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
@@ -416,11 +416,39 @@ public class HntMainActivity extends AppCompatActivity {
         Log.d("wifi","setting\nssid : " + wifi_ssid + "   pw : " + wifi_pw);
 
         if(null != wifi_ssid && !"".equals(wifi_ssid)) {
+
             if(null != wifi_pw && !"".equals(wifi_pw)) {
                 //wifi ssid와 비밀번호가 있을 경우 wifi 접속 시도
                 //PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
                 //PreferenceManager.setString(getApplicationContext(), "pw", wifi_pw);
 
+                String userId = PreferenceManager.getString(getApplicationContext(), "userid");
+                if(!wifi_ssid.contains("HBee")) {
+                    PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
+                    PreferenceManager.setString(getApplicationContext(), "password", wifi_pw);
+                    connectToAp(wifi_ssid, wifi_pw);
+                } else {
+                    WifiInfo currentConnection = wifiManager.getConnectionInfo();
+                    Log.d("sensor", "current ssid : " + currentConnection.getSSID());
+                    if(currentConnection.getSSID().equals(wifi_ssid)) {
+
+                    } else {
+                        connectToAp(wifi_ssid, wifi_pw);
+                    }
+
+                    try {
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                setSensor(userId, wifi_ssid, wifi_pw);
+                            }
+                        }, 3000);
+                    } catch(Exception e) {
+
+                    }
+                }
+            } else {
                 String userId = PreferenceManager.getString(getApplicationContext(), "userid");
                 if(!wifi_ssid.contains("HBee")) {
                     PreferenceManager.setString(getApplicationContext(), "ssid", wifi_ssid);
@@ -454,12 +482,13 @@ public class HntMainActivity extends AppCompatActivity {
     }
 
     public void setSensor(String userId, String ssid, String password) {
-        if(ssid.contains("HBee")) {
-            ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
-            password = PreferenceManager.getString(getApplicationContext(), "password");
-        }
+        //if(ssid.contains("HBee")) {
+        //    ssid = PreferenceManager.getString(getApplicationContext(), "ssid");
+        //    password = PreferenceManager.getString(getApplicationContext(), "password");
+        //}
 
-        Log.d("sensor", "Info : userId - " + userId + "/ ssid - " + ssid + "/ password - " + password);
+        Log.d("sensor", "Info : userId - " + userId + "/ ssid " +
+                "- " + ssid + "/ password - " + password);
         if(null != userId && !"".equals(userId)) {
             if(null != ssid && !"".equals(ssid)) {
                 if(null != password && !"".equals(password)) {
