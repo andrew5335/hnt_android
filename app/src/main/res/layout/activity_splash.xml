@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/splash_linear"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="#ffffff"
+    android:orientation="vertical"
     tools:context=".SplashActivity">
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="118dp"
+        android:layout_height="114dp"
+        android:layout_gravity="center"
+        app:srcCompat="?attr/actionModeSelectAllDrawable"
+        app:tint="#2196F3" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="WIFI를 연결해주세요."
+        android:textSize="16sp"
+        android:textColor="#000000" />
 
     <Button
         android:id="@+id/wifi_setting"
@@ -14,46 +35,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="161dp"
-        android:layout_marginTop="421dp"
-        android:layout_marginEnd="162dp"
-        android:layout_marginBottom="422dp"
         android:text="WIFI설정"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="92dp"
-        android:layout_marginTop="376dp"
-        android:layout_marginEnd="92dp"
-        android:layout_marginBottom="26dp"
-        android:text="WIFI를 연결해주세요."
-        android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintBottom_toTopOf="@+id/wifi_setting"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="118dp"
-        android:layout_height="114dp"
-        android:layout_marginStart="146dp"
-        android:layout_marginTop="232dp"
-        android:layout_marginEnd="147dp"
-        android:layout_marginBottom="29dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="?attr/actionModeSelectAllDrawable"
-        app:tint="#2196F3" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

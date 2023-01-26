@@ -31,7 +31,7 @@ import com.pedro.library.AutoPermissions;
 public class SplashActivity extends AppCompatActivity {
 
     private Button wifiSetting;
-    private ConstraintLayout splashLinear;
+    private LinearLayout splashLinear;
     private WifiManager wifiManager;
 
     private BackpressHandler backpressHandler;
@@ -47,7 +47,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService((Context.WIFI_SERVICE));
-        splashLinear = (ConstraintLayout) findViewById(R.id.splash_linear);
+        splashLinear = (LinearLayout) findViewById(R.id.splash_linear);
         wifiSetting = (Button) findViewById(R.id.wifi_setting);
 
         splashLinear.setBackgroundColor(Color.WHITE);
@@ -89,6 +89,7 @@ public class SplashActivity extends AppCompatActivity {
                         Log.d("sensor", "result : " + result.getResultCode());
                         WifiInfo currentConnection = wifiManager.getConnectionInfo();
                         currentSsid = currentConnection.getSSID();
+                        currentSsid = currentSsid.replace("\"", "");
                         Log.d("sensor", "current ssid : " + currentSsid);
 
                         //if(null != currentSsid && !"".equals(currentSsid) && !currentSsid.contains("unknown")) {
