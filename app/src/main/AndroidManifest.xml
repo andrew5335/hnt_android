@@ -27,7 +27,7 @@
         tools:targetApi="33">
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".HntMainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".HntMainActivity" />
+        <activity android:name=".SplashActivity" />
     </application>
 
 </manifest>
