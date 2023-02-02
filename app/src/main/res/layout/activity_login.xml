@@ -11,8 +11,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#080A15"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:layout_gravity="center"
         android:orientation="vertical">
 
@@ -65,6 +71,7 @@
                     android:text="아이디" />
 
                 <EditText
+                    android:id="@+id/userid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="50dp"
@@ -103,6 +110,7 @@
                     android:text="비밀번호" />
 
                 <EditText
+                    android:id="@+id/userpass"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="50dp"
@@ -119,5 +127,32 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:text="Login" />
+
+    <ImageButton
+        android:id="@+id/naverlogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:background="#ffffff"
+        app:srcCompat="@mipmap/naver_login_narrow" />
+
+    <ImageButton
+        android:id="@+id/kakaologin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:background="#ffffff"
+        app:srcCompat="@mipmap/kakao_login_large_narrow" />
 
 </LinearLayout>
