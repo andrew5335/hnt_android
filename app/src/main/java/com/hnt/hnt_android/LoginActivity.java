@@ -1,7 +1,11 @@
 package com.hnt.hnt_android;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +18,8 @@ import com.hnt.hnt_android.api.RetroClient;
 import com.hnt.hnt_android.api.RetroInterface;
 import com.hnt.hnt_android.api.model.LoginResult;
 import com.hnt.hnt_android.api.model.LoginVO;
+import com.hnt.hnt_android.manager.PreferenceManager;
+import com.pedro.library.AutoPermissions;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText userId, userPass;
 
     private String user_id, user_pass;
+
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,18 +67,34 @@ public class LoginActivity extends AppCompatActivity {
                             public void onResponse(Call<LoginResult> call, Response<LoginResult> response) {
                                 if(response.isSuccessful()) {
                                     LoginResult result = response.body();
-                                    Log.i("API", "success");
-                                    Log.i(":API", result.getResultCode());
+
+                                    if("200".equals(result.getResultCode())) {
+                                        PreferenceManager.setString(getApplicationContext(), "userId", result.getUserInfo().userId);
+                                        PreferenceManager.setString(getApplicationContext(), "userNm", result.getUserInfo().userNm);
+                                        PreferenceManager.setString(getApplicationContext(), "userEmail", result.getUserInfo().userEmail);
+                                        PreferenceManager.setString(getApplicationContext(), "userGrade", result.getUserInfo().userGrade);
+                                        PreferenceManager.setString(getApplicationContext(), "userTel", result.getUserInfo().userTel);
+
+                                        Intent intent = new Intent(LoginActivity.this, HntMainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_LONG).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<LoginResult> call, Throwable t) {
-
+                                //Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_LONG).show();
+                                Log.d("API", t.toString());
                             }
                         });
                     } catch(Exception e) {
-
+                        Log.e("API", e.toString());
+                        e.printStackTrace();
                     }
 
                 } else {
@@ -84,6 +108,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "register", Toast.LENGTH_LONG).show();
+                Intent joinIntent = new Intent(LoginActivity.this, JoinActivity.class);
+                startActivity(joinIntent);
             }
         });
 
@@ -100,5 +126,30 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "click kakao login", Toast.LENGTH_LONG).show();
             }
         });
+
+        if ( Build.VERSION.SDK_INT >= 23){
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED  ){
+                requestPermissions(new String[]{
+                                android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+                return ;
+            }
+        }
+
+        AutoPermissions.Companion.loadAllPermissions(this,101);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

@@ -42,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -158,6 +159,9 @@ public class HntMainActivity extends AppCompatActivity {
         webView.getSettings().setDefaultTextEncodingName("UTF-8");
         webView.setWebContentsDebuggingEnabled(true);
         //webView.addJavascriptInterface(new WebAppInterface(), "hntInterface");
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
 
         mContext = getApplicationContext();
 
@@ -286,7 +290,18 @@ public class HntMainActivity extends AppCompatActivity {
 
         AutoPermissions.Companion.loadAllPermissions(this,101);
 
-        webView.loadUrl("http://hntnas.diskstation.me:8820/main/main");
+        String userId, userNm, userEmail, userGrade, userTel, loadUrl;
+
+        userId = PreferenceManager.getString(getApplicationContext(), "userId");
+        userNm = PreferenceManager.getString(getApplicationContext(), "userNm");
+        userEmail = PreferenceManager.getString(getApplicationContext(), "userEmail");
+        userGrade = PreferenceManager.getString(getApplicationContext(), "userGrade");
+        userTel = PreferenceManager.getString(getApplicationContext(), "userTel");
+        loadUrl = "http://iot.hntsolution.co.kr:8820/main/main?userId=" + userId + "&userNm=" + userNm + "&userEmail=" + userEmail + "&userGrade=" + userGrade + "&userTel=" + userTel;
+
+        Log.d("API", "loadUrl : " + loadUrl);
+
+        webView.loadUrl(loadUrl);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.hnt.hnt_android.api;
 
+import com.hnt.hnt_android.api.model.JoinResult;
+import com.hnt.hnt_android.api.model.JoinVO;
 import com.hnt.hnt_android.api.model.LoginResult;
 import com.hnt.hnt_android.api.model.LoginVO;
 import com.hnt.hnt_android.api.model.Result;
@@ -15,12 +17,17 @@ public interface RetroInterface {
     @FormUrlEncoded
     @POST("data/insertSensorInfo")
     Call<Result> insertSensorInfo(
-            @Field("userId") String userId
-            , @Field("sensorInfo") String sensorInfo
+        @Field("userId") String userId
+        , @Field("sensorInfo") String sensorInfo
     );
 
-    @POST("loign/loginProcess")
+    @POST("login/loginProcess")
     Call<LoginResult> login(
-            @Body LoginVO loginVO
-            );
+        @Body LoginVO loginVO
+    );
+
+    @POST("login/joinProcess")
+    Call<JoinResult> join(
+        @Body JoinVO joinVO
+    );
 }

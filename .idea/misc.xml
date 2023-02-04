@@ -3,12 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/activity_intro.xml" value="0.32407011543394615" />
-        <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/activity_splash.xml" value="0.25480974775545107" />
         <entry key="..\:/DEV/privatedev/hnt_android/app/src/main/res/layout/enter_pw_dialog.xml" value="0.32407011543394615" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_hnt_main.xml" value="0.18489583333333334" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_hntmain.xml" value="0.358695652173913" />
+        <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_join.xml" value="0.5" />
+        <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_login.xml" value="0.18489583333333334" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/activity_main.xml" value="0.1703125" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/enter_pw_dialog.xml" value="0.18489583333333334" />
         <entry key="..\:/Workspace_android/hnt_android/app/src/main/res/layout/fragment_main.xml" value="0.18489583333333334" />
