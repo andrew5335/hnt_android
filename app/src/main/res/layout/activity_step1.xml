@@ -35,6 +35,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:orientation="vertical">
 
         <TextView
@@ -46,11 +48,12 @@
             android:textStyle="bold"
             android:text="기기리스트" />
 
-        <ListView
-            android:layout_width="409dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/device_list"
+            android:layout_width="match_parent"
             android:layout_height="200dp"
-            tools:layout_editor_absoluteX="1dp"
-            tools:layout_editor_absoluteY="1dp" />
+            android:layout_marginTop="30dp"
+            android:scrollbars="horizontal" />
 
     </LinearLayout>
 

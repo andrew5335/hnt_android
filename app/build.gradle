@@ -49,7 +49,7 @@ dependencies {
 
     implementation 'org.greenrobot:eventbus:3.0.0' //event bus
     implementation 'com.github.pedroSG94:AutoPermissions:1.0.3' //auto permission
-    implementation 'com.android.support:recyclerview-v7:28.0.0' //recyclerview
+    implementation 'androidx.recyclerview:recyclerview:1.0.0' //recyclerview
 
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation("com.squareup.okio:okio:3.2.0")
