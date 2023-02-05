@@ -92,4 +92,11 @@ public class UserInfo {
     public String getMdfId() {
         return mdfId;
     }
+
+    @SerializedName("deviceId")
+    @Expose
+    public String deviceId;
+
+    public String getDeviceId() { return deviceId; }
 }
+

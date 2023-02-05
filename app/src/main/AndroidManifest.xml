@@ -26,6 +26,21 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="33">
         <activity
+            android:name=".Step5Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Step4Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Step3Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Step2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Step1Activity"
+            android:exported="false" />
+        <activity
             android:name=".JoinActivity"
             android:exported="false" />
         <activity

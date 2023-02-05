@@ -75,9 +75,8 @@ public class LoginActivity extends AppCompatActivity {
                                         PreferenceManager.setString(getApplicationContext(), "userGrade", result.getUserInfo().userGrade);
                                         PreferenceManager.setString(getApplicationContext(), "userTel", result.getUserInfo().userTel);
 
-                                        Intent intent = new Intent(LoginActivity.this, HntMainActivity.class);
+                                        Intent intent = new Intent(LoginActivity.this, Step1Activity.class);
                                         startActivity(intent);
-                                        finish();
                                     } else {
                                         Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_LONG).show();
                                     }
