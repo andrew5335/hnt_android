@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +132,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        /**
         if ( Build.VERSION.SDK_INT >= 23){
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) !=
                     PackageManager.PERMISSION_GRANTED  ){
@@ -140,6 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                 return ;
             }
         }
+         **/
 
         AutoPermissions.Companion.loadAllPermissions(this,101);
         chkInternet();
@@ -154,20 +157,19 @@ public class LoginActivity extends AppCompatActivity {
         WifiManager wifiManager= (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
 
 
-        Log.i("routes ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getRoutes().toString());
-        Log.i("dhcp server ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDhcpServerAddress().toString().replace("/", ""));
-        Log.i("ip address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getLinkAddresses().toString());
-        Log.i("dns address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDnsServers().toString());
-
-
+        if(wifiManager.isWifiEnabled()) {
+            Log.i("routes ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getRoutes().toString());
+            Log.i("dhcp server ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDhcpServerAddress().toString().replace("/", ""));
+            Log.i("ip address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getLinkAddresses().toString());
+            Log.i("dns address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDnsServers().toString());
+        }
 
         if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI) {
             Log.i("myType ", "wifi");
             DhcpInfo d =wifiManager.getDhcpInfo();
             Log.i("info", d.toString()+"");
             Log.i("info", "server addr : " + String.format("%d.%d.%d.%d", (d.gateway & 0xff), (d.gateway >> 8 & 0xff), (d.gateway >> 16 & 0xff), (d.gateway >> 24 & 0xff)));
-        }
-        else if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_ETHERNET) {
+        } else if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_ETHERNET) {
             /* there is no EthernetManager class, there is only WifiManager. so, I used this below trick to get my IP range, dns, gateway address etc */
 
             Log.i("myType ", "Ethernet");
@@ -176,8 +178,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("ip address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getLinkAddresses().toString());
             Log.i("dns address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDnsServers().toString());
 
-        }
-        else {
+        } else {
 
         }
     }
@@ -188,6 +189,7 @@ public class LoginActivity extends AppCompatActivity {
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 } else {
+
                 }
                 break;
             default:

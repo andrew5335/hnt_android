@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.WindowManager;
 
+import com.pedro.library.AutoPermissions;
+
 public class IntroActivity extends AppCompatActivity {
 
     @Override
@@ -25,5 +27,7 @@ public class IntroActivity extends AppCompatActivity {
                 finish();
             }
         }, 2000);
+
+        AutoPermissions.Companion.loadAllPermissions(this,101);
     }
 }
