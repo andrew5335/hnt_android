@@ -1,6 +1,8 @@
 package com.hnt.hnt_android.api;
 
+import com.hnt.hnt_android.api.model.DeviceChgResult;
 import com.hnt.hnt_android.api.model.DeviceResult;
+import com.hnt.hnt_android.api.model.DeviceVO;
 import com.hnt.hnt_android.api.model.JoinResult;
 import com.hnt.hnt_android.api.model.JoinVO;
 import com.hnt.hnt_android.api.model.LoginResult;
@@ -35,6 +37,11 @@ public interface RetroInterface {
     @POST("data/getSensorList")
     Call<DeviceResult> getDeviceList(
         @Body LoginVO loginVO
+    );
+
+    @POST("data/updateSensorInfo")
+    Call<DeviceChgResult> updateSensorInfo(
+            @Body DeviceVO deviceVO
     );
 
 }

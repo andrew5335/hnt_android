@@ -82,16 +82,16 @@ public class JoinActivity extends AppCompatActivity {
                                         startActivity(intent);
                                         finish();
                                     } else {
-                                        Toast.makeText(getApplicationContext(), "회원가입 실패", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "회원가입 실패1", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "회원가입 실패", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "회원가입 실패2", Toast.LENGTH_LONG).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<JoinResult> call, Throwable t) {
-                                Toast.makeText(getApplicationContext(), "회원가입 실패", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "회원가입 실패3", Toast.LENGTH_LONG).show();
                             }
                         });
                     } catch(Exception e) {

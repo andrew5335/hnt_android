@@ -15,14 +15,15 @@ import com.hnt.hnt_android.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolder> {
 
-    private List<String> itemList;
+    private List<Map<String, Object>> itemList;
     private Context context;
     private View.OnClickListener onClickItem;
 
-    public ListViewAdapter(Context context, List<String> itemList, View.OnClickListener onClickItem) {
+    public ListViewAdapter(Context context, List<Map<String, Object>> itemList, View.OnClickListener onClickItem) {
         this.context = context;
         this.itemList = itemList;
         this.onClickItem = onClickItem;
@@ -37,20 +38,24 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ListViewAdapter.ViewHolder holder, int position) {
-        String item = itemList.get(position);
+        Map<String, Object> item = itemList.get(position);
 
         holder.imageView.setImageResource(R.mipmap.device);
-        holder.imageView.setTag(item);
+        holder.imageView.setTag(String.valueOf(item.get("sensor_uuid")) + "," + String.valueOf(item.get("sensor_name")));
         holder.imageView.setOnClickListener(onClickItem);
 
-        holder.textview.setText(item);
-        holder.textview.setTag(item);
+        holder.textview.setText(String.valueOf(item.get("sensor_name")));
+        holder.textview.setTag(String.valueOf(item.get("sensor_uuid")) + "," + String.valueOf(item.get("sensor_name")));
         holder.textview.setOnClickListener(onClickItem);
     }
 
     @Override
     public int getItemCount() {
-        return itemList.size();
+        if(null != itemList && 0 < itemList.size()) {
+            return itemList.size();
+        } else {
+            return 0;
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

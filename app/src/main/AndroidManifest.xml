@@ -26,6 +26,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="33">
         <activity
+            android:name=".DeviceActivity"
+            android:exported="false" />
+        <activity
             android:name=".Step5Activity"
             android:exported="false" />
         <activity

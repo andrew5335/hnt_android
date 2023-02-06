@@ -22,6 +22,7 @@ import com.hnt.hnt_android.manager.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,7 +64,7 @@ public class Step1Activity extends AppCompatActivity {
                             DeviceResult result = response.body();
 
                             if("200".equals(result.getResultCode())) {
-                                List<String> itemList = new ArrayList<String>();
+                                List<Map<String, Object>> itemList = new ArrayList<Map<String, Object>>();
                                 itemList = result.getDeviceList();
 
                                 adapter = new ListViewAdapter(getApplicationContext(), itemList, onClickItem);
@@ -73,18 +74,19 @@ public class Step1Activity extends AppCompatActivity {
                                 listview.addItemDecoration(decoration);
                             } else {
                                 //Toast.makeText(getApplicationContext(), "기기 목록 조회 실패", Toast.LENGTH_LONG).show();
-                                Log.e("API", "기기목록 조회 실패");
+                                Log.e("API", "기기목록 조회 실패1");
                             }
                         } else {
                             //Toast.makeText(getApplicationContext(), "기기 목록 조회 실패", Toast.LENGTH_LONG).show();
-                            Log.e("API", "기기목록 조회 실패");
+                            Log.e("API", "기기목록 조회 실패2");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<DeviceResult> call, Throwable t) {
                         //Toast.makeText(getApplicationContext(), "기기 목록 조회 실패", Toast.LENGTH_LONG).show();
-                        Log.e("API", "기기목록 조회 실패");
+                        Log.e("API", "기기목록 조회 실패3");
+                        t.printStackTrace();
                     }
                 });
             } catch(Exception e) {
@@ -127,8 +129,22 @@ public class Step1Activity extends AppCompatActivity {
     private View.OnClickListener onClickItem = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String str = (String) v.getTag();
-            Toast.makeText(Step1Activity.this, str, Toast.LENGTH_SHORT).show();
+            String sensorUuid, sensorName;
+            String sensor = (String) v.getTag();
+            String[] sensorInfo = sensor.split(",");
+            sensorUuid = sensorInfo[0];
+            sensorName = sensorInfo[1];
+            String userId = PreferenceManager.getString(getApplicationContext(), "userId");
+            //Toast.makeText(Step1Activity.this, sensor, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Step1Activity.this, sensorUuid, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Step1Activity.this, sensorName, Toast.LENGTH_SHORT).show();
+
+            Intent device = new Intent(Step1Activity.this, DeviceActivity.class);
+            device.putExtra("userId", userId);
+            device.putExtra("sensorUuid", sensorUuid);
+            device.putExtra("sensorName", sensorName);
+
+            startActivity(device);
         }
     };
 }
