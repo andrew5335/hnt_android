@@ -1,10 +1,15 @@
 package com.hnt.hnt_android;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -137,6 +142,43 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         AutoPermissions.Companion.loadAllPermissions(this,101);
+        chkInternet();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    public void chkInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Service.CONNECTIVITY_SERVICE);
+
+        /* you can print your active network via using below */
+        Log.i("myNetworkType: ", connectivityManager.getActiveNetworkInfo().getTypeName());
+        WifiManager wifiManager= (WifiManager) getApplicationContext().getSystemService(getApplicationContext().WIFI_SERVICE);
+
+
+        Log.i("routes ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getRoutes().toString());
+        Log.i("dhcp server ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDhcpServerAddress().toString().replace("/", ""));
+        Log.i("ip address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getLinkAddresses().toString());
+        Log.i("dns address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDnsServers().toString());
+
+
+
+        if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI) {
+            Log.i("myType ", "wifi");
+            DhcpInfo d =wifiManager.getDhcpInfo();
+            Log.i("info", d.toString()+"");
+        }
+        else if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_ETHERNET) {
+            /* there is no EthernetManager class, there is only WifiManager. so, I used this below trick to get my IP range, dns, gateway address etc */
+
+            Log.i("myType ", "Ethernet");
+            Log.i("routes ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getRoutes().toString());
+            Log.i("domains ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDomains().toString());
+            Log.i("ip address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getLinkAddresses().toString());
+            Log.i("dns address ", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).getDnsServers().toString());
+
+        }
+        else {
+
+        }
     }
 
     @Override
