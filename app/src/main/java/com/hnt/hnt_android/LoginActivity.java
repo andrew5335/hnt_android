@@ -165,6 +165,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("myType ", "wifi");
             DhcpInfo d =wifiManager.getDhcpInfo();
             Log.i("info", d.toString()+"");
+            Log.i("info", "server addr : " + String.format("%d.%d.%d.%d", (d.gateway & 0xff), (d.gateway >> 8 & 0xff), (d.gateway >> 16 & 0xff), (d.gateway >> 24 & 0xff)));
         }
         else if(connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_ETHERNET) {
             /* there is no EthernetManager class, there is only WifiManager. so, I used this below trick to get my IP range, dns, gateway address etc */
