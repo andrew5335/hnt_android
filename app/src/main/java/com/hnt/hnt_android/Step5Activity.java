@@ -75,6 +75,7 @@ public class Step5Activity extends AppCompatActivity {
                         }
 
                         // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
+                        /**
                         Handler handler = new Handler(Looper.getMainLooper());
                         handler.postDelayed(new Runnable() {
                             @Override
@@ -84,9 +85,26 @@ public class Step5Activity extends AppCompatActivity {
                                 startActivityResult.launch(main);
                             }
                         }, 0);
+                         **/
+
+                        //new Thread(() -> {
+                            //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                            Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
+                            //startActivityResult.launch(main);
+                            startActivity(main);
+                        //}).start();
+                    } else {
+                        //new Thread(() -> {
+                            //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                            Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
+                            //startActivityResult.launch(main);
+                            startActivity(main);
+                        //}).start();
                     }
                 } catch(Exception e) {
-
+                    Toast.makeText(getApplicationContext(), "Error : " + e.toString(), Toast.LENGTH_LONG).show();
+                    Log.e("API", e.toString());
+                    e.printStackTrace();
                 }
             }).start();
         }
