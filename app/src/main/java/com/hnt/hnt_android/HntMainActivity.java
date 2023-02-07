@@ -194,7 +194,7 @@ public class HntMainActivity extends AppCompatActivity {
         } else {
             Intent settingIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
             //startActivityForResult(settingIntent, 1);
-            startActivityResult.launch(settingIntent);
+            //startActivityResult.launch(settingIntent);
         }
 
         Dialog dlg = new Dialog(this);
@@ -204,6 +204,9 @@ public class HntMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                Intent step1 = new Intent(HntMainActivity.this, Step1Activity.class);
+                startActivity(step1);
+                /**
                 // 액티비티의 타이틀바를 숨긴다.
                 dlg.setContentView(R.layout.enter_pw_dialog);
 
@@ -251,7 +254,7 @@ public class HntMainActivity extends AppCompatActivity {
                         dlg.dismiss();
                     }
                 });
-                /**
+
                  if(wifiManager.isWifiEnabled()) {
                  WifiInfo currentConnection = wifiManager.getConnectionInfo();
                  if(!currentConnection.getSSID().contains("HBee")) {
