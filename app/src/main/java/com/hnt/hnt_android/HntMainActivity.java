@@ -304,7 +304,13 @@ public class HntMainActivity extends AppCompatActivity {
 
         Log.d("API", "loadUrl : " + loadUrl);
 
-        webView.loadUrl(loadUrl);
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                webView.loadUrl(loadUrl);
+            }
+        }, 2000);
     }
 
     @Override

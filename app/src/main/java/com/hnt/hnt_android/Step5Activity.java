@@ -4,13 +4,21 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,10 +30,12 @@ import com.hnt.hnt_android.manager.PreferenceManager;
 import com.hnt.hnt_android.socket.UDPClient;
 
 import java.net.InetAddress;
+import java.util.List;
 
 public class Step5Activity extends AppCompatActivity {
 
     private WifiManager wifiManager;
+
     private String userId, hbeeSsid, ssid, wifiPass, result;
     private static final int port = 1113;
     private static final String host = "192.168.0.1";
@@ -56,23 +66,40 @@ public class Step5Activity extends AppCompatActivity {
 
                     Log.d("API", "Info : " + host);
 
-                    result = client.sendEcho(getSensorInfoCmd, port);
+                    result = client.sendEcho(setSensorInfoCmd, port);
 
                     Log.d("API", "Info : " + result);
 
                     if(null != result && !"".equals(result)) {
+                        //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_SHORT).show();
                         client.close();
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                                Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
+                                //startActivityResult.launch(main);
+                                startActivity(main);
+                            }
+                        }, 5000);
+                        //Intent main = new Intent(Step5Activity.this, Step1Activity.class);
+                        //startActivity(main);
 
-                        Thread.sleep(1000);
+                        /**
+                        Thread.sleep(500);
                         UDPClient client2 = new UDPClient(address);
                         try {
                             result = client2.sendEcho(setSensorInfoCmd, port);
                             Log.d("API", "Info : " + result);
+                            wifiManager.setWifiEnabled(false);
                         } catch (Exception e) {
                             Log.e("API", "Error : " + e.toString());
                         } finally {
+                            client.close();
                             client2.close();
                         }
+                         **/
 
                         // CFG_GET으로 받은 결과값 저장 후 센서 기기에 WIFI 정보 및 사용자 아이디 설정 처리 (1초 대기 후 처리)
                         /**
@@ -82,24 +109,24 @@ public class Step5Activity extends AppCompatActivity {
                             public void run() {
                                 Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
                                 Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
-                                startActivityResult.launch(main);
+                                //startActivityResult.launch(main);
+                                startActivity(main);
                             }
-                        }, 0);
+                        }, 1000);
                          **/
 
-                        //new Thread(() -> {
-                            //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
-                            Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
-                            //startActivityResult.launch(main);
-                            startActivity(main);
-                        //}).start();
+
                     } else {
-                        //new Thread(() -> {
-                            //Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
-                            Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
-                            //startActivityResult.launch(main);
-                            startActivity(main);
-                        //}).start();
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Result : " + result, Toast.LENGTH_LONG).show();
+                                Intent main = new Intent(Step5Activity.this, HntMainActivity.class);
+                                //startActivityResult.launch(main);
+                                startActivity(main);
+                            }
+                        }, 1000);
                     }
                 } catch(Exception e) {
                     Toast.makeText(getApplicationContext(), "Error : " + e.toString(), Toast.LENGTH_LONG).show();
