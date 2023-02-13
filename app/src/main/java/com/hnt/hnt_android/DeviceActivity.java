@@ -23,7 +23,7 @@ public class DeviceActivity extends AppCompatActivity {
 
     private String userId, sensorUuid, sensorName, chgSensorName;
     private EditText sensor_name;
-    private Button chgName;
+    private Button chgName, deleteDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +35,7 @@ public class DeviceActivity extends AppCompatActivity {
         sensorName = getIntent().getStringExtra("sensorName");
         sensor_name = (EditText) findViewById(R.id.sensor_name);
         chgName = (Button) findViewById(R.id.chg_name);
+        deleteDevice = (Button) findViewById(R.id.delete_device);
 
         Log.d("API", "userId : " + userId);
         Log.d("API", "sensorUuid : " + sensorUuid);
@@ -67,6 +68,8 @@ public class DeviceActivity extends AppCompatActivity {
                                             Intent step1 = new Intent(DeviceActivity.this, Step1Activity.class);
                                             startActivity(step1);
                                             finish();
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "장치명 변경 실패", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         Log.e("API", "장치명 변경 실패1");
@@ -86,6 +89,52 @@ public class DeviceActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "장치명 변경에 필요한 필수값이 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        deleteDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null != userId && !"".equals(userId) & null != sensorUuid && !"".equals(sensorUuid) && null != sensorName && !"".equals(sensorName)) {
+                    RetroInterface retroInterface = RetroClient.getApiService();
+                    DeviceVO deviceVO = new DeviceVO(userId, sensorName, sensorUuid, "");
+                    deviceVO.setUserId(userId);
+                    deviceVO.setSensorName(sensorName);
+                    deviceVO.setSensorUuid(sensorUuid);
+                    deviceVO.setChgSensorName("");
+
+                    try {
+                        Call<DeviceChgResult> deviceDelResult = retroInterface.deleteSensorInfo(deviceVO);
+                        deviceDelResult.enqueue(new Callback<DeviceChgResult>() {
+                            @Override
+                            public void onResponse(Call<DeviceChgResult> call, Response<DeviceChgResult> response) {
+                                DeviceChgResult result = response.body();
+
+                                if(response.isSuccessful()) {
+                                    if("200".equals(result.getResultCode())) {
+                                        Toast.makeText(getApplicationContext(), "장치 삭제 성공", Toast.LENGTH_SHORT).show();
+                                        Intent step1 = new Intent(DeviceActivity.this, Step1Activity.class);
+                                        startActivity(step1);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "장치 삭제 실패", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Log.e("API", "장치 삭제 실패1");
+                                    Toast.makeText(getApplicationContext(), "장치 삭제 실패", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<DeviceChgResult> call, Throwable t) {
+                                Log.e("API", "장치 삭제 실패2");
+                                Toast.makeText(getApplicationContext(), "장치 삭제 실패", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch(Exception e) {
+                        Log.e("API", "장치 삭제 실패3");
+                    }
                 }
             }
         });

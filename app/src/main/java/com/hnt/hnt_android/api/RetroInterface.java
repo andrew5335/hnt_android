@@ -44,4 +44,9 @@ public interface RetroInterface {
             @Body DeviceVO deviceVO
     );
 
+    @POST("data/deleteSensorInfo")
+    Call<DeviceChgResult> deleteSensorInfo(
+            @Body DeviceVO deviceVO
+    );
+
 }
