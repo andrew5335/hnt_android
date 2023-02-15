@@ -19,7 +19,6 @@
         android:id="@+id/item_textview"
         android:layout_width="100dp"
         android:layout_height="30dp"
-        android:background="#AFB42B"
         android:gravity="center"
         android:text="devicename"
         android:textColor="@android:color/black"
