@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "692574967181",
+    "project_id": "hnt-alarm",
+    "storage_bucket": "hnt-alarm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:692574967181:android:e6f4f7fe0c656e901c59c4",
+        "android_client_info": {
+          "package_name": "com.hnt.hnt_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "692574967181-luj4tafhbkplnmhe0970660vf0afo551.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWSxw-OPUrOhE6znvYJ8yoZK3f68wTT2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "692574967181-luj4tafhbkplnmhe0970660vf0afo551.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

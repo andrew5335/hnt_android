@@ -1,5 +1,6 @@
 package com.hnt.hnt_android;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -19,11 +20,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.hnt.hnt_android.api.RetroClient;
 import com.hnt.hnt_android.api.RetroInterface;
 import com.hnt.hnt_android.api.model.LoginResult;
 import com.hnt.hnt_android.api.model.LoginVO;
 import com.hnt.hnt_android.manager.PreferenceManager;
+import com.hnt.hnt_android.service.MessagingService;
 import com.pedro.library.AutoPermissions;
 
 import retrofit2.Call;
@@ -145,7 +150,30 @@ public class LoginActivity extends AppCompatActivity {
          **/
 
         AutoPermissions.Companion.loadAllPermissions(this,101);
-        chkInternet();
+        //chkInternet();
+
+        Intent fcm = new Intent(getApplicationContext(), MessagingService.class);
+        startService(fcm);
+
+        Intent fcmIntent = getIntent();
+        if(null != fcmIntent) {
+            String notiData = String.valueOf(fcmIntent.getStringExtra("test"));
+            if(null != notiData) {
+                Log.d("FCM TEST ", notiData);
+            }
+        }
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(!task.isSuccessful()) {
+                    Log.d("FCM", "task failed");
+                }
+
+                String token = task.getResult();
+                Log.d("FCM", "token : " + token);
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)

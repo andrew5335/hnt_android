@@ -55,6 +55,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.hnt.hnt_android.adapter.wifiAdapter;
 import com.hnt.hnt_android.api.RetroClient;
 import com.hnt.hnt_android.api.model.Result;
@@ -62,6 +65,7 @@ import com.hnt.hnt_android.dialog.wifiDialog;
 import com.hnt.hnt_android.handler.BackpressHandler;
 import com.hnt.hnt_android.manager.PreferenceManager;
 import com.hnt.hnt_android.script.WebAppInterface;
+import com.hnt.hnt_android.service.MessagingService;
 import com.hnt.hnt_android.socket.UDPClient;
 import com.pedro.library.AutoPermissions;
 
@@ -311,6 +315,28 @@ public class HntMainActivity extends AppCompatActivity {
                 webView.loadUrl(loadUrl);
             }
         }, 2000);
+
+        Intent fcm = new Intent(getApplicationContext(), MessagingService.class);
+        startService(fcm);
+
+        Intent fcmIntent = getIntent();
+        if(null != fcmIntent) {
+            String notiData = String.valueOf(fcmIntent.getStringExtra("test"));
+            if(null != notiData) {
+                Log.d("FCM TEST ", notiData);
+            }
+        }
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(!task.isSuccessful()) {
+                    Log.d("FCM", "task failed");
+                }
+
+                String token = task.getResult();
+            }
+        });
     }
 
     @Override
