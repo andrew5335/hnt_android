@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageButton naverLogin, kakaoLogin;
     private EditText userId, userPass;
 
-    private String user_id, user_pass;
+    private String user_id, user_pass, token;
 
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
@@ -63,13 +63,15 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 user_id = userId.getText().toString();
                 user_pass = userPass.getText().toString();
+                token = PreferenceManager.getString(getApplicationContext(), "token");
 
                 if(null != user_id && !"".equals(user_id) && null != user_pass && !"".equals(user_pass)) {
                     // 사용자 아이디, 비밀번호가 있을 경우 로그인 처리 및 세션 처리 진행
                     RetroInterface retroInterface = RetroClient.getApiService();
-                    LoginVO loginVO = new LoginVO(user_id, user_pass);
+                    LoginVO loginVO = new LoginVO(user_id, user_pass, token);
                     loginVO.setUserId(user_id);
                     loginVO.setUserPass(user_pass);
+                    loginVO.setToken(token);
 
                     try {
                         Call<LoginResult> loginResult = retroInterface.login(loginVO);
@@ -171,6 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 String token = task.getResult();
+                PreferenceManager.setString(getApplicationContext(), "token", token);
                 Log.d("FCM", "token : " + token);
             }
         });

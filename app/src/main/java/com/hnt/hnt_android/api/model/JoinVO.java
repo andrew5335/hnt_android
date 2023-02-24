@@ -8,14 +8,16 @@ public class JoinVO {
     private String userTel;
     private String userEmail;
     private String deviceId;
+    private String token;
 
-    public JoinVO(String userId, String userPass, String userNm, String userTel, String userEmail, String deviceId) {
+    public JoinVO(String userId, String userPass, String userNm, String userTel, String userEmail, String deviceId, String token) {
         this.userId = userId;
         this.userPass = userPass;
         this.userNm = userNm;
         this.userTel = userTel;
         this.userEmail = userEmail;
         this.deviceId = deviceId;
+        this.token = token;
     }
 
     public String getUserId() {
@@ -33,6 +35,8 @@ public class JoinVO {
     public String getUserEmail() { return userEmail; }
 
     public String getDeviceId() { return deviceId; }
+
+    public String getToken() { return token; }
 
     public void setUserId(String userId) {
         this.userId = userId;
@@ -57,4 +61,6 @@ public class JoinVO {
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
+
+    public void setToken(String token) { this.token = token; }
 }

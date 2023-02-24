@@ -25,7 +25,7 @@ public class JoinActivity extends AppCompatActivity {
     private Button register;
     private EditText userId, userPass, userNm, userEmail, userTel, deviceId;
 
-    private String user_id, user_pass, user_nm, user_email, user_tel, device_id;
+    private String user_id, user_pass, user_nm, user_email, user_tel, device_id, token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,7 @@ public class JoinActivity extends AppCompatActivity {
         userTel = (EditText) findViewById(R.id.usertel) ;
         userEmail = (EditText) findViewById(R.id.useremail);
         deviceId = (EditText) findViewById(R.id.deviceid);
+        token = PreferenceManager.getString(getApplicationContext(), "token");
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,13 +55,14 @@ public class JoinActivity extends AppCompatActivity {
                         && null != user_tel && !"".equals(user_tel) && null != user_email && !"".equals(user_email) && null != device_id && !"".equals(device_id)) {
                     // 모든 정보를 입력받은 경우 회원가입 진행
                     RetroInterface retroInterface = RetroClient.getApiService();
-                    JoinVO joinVO = new JoinVO(user_id, user_pass, user_nm, user_tel, user_email, device_id);
+                    JoinVO joinVO = new JoinVO(user_id, user_pass, user_nm, user_tel, user_email, device_id, token);
                     joinVO.setUserId(user_id);
                     joinVO.setUserPass(user_pass);
                     joinVO.setUserNm(user_nm);
                     joinVO.setUserTel(user_tel);
                     joinVO.setUserEmail(user_email);
                     joinVO.setDeviceId(device_id);
+                    joinVO.setToken(token);
 
                     try {
                         Call<JoinResult> joinResult = retroInterface.join(joinVO);

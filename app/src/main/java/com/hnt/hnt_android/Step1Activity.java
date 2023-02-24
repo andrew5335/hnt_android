@@ -52,7 +52,7 @@ public class Step1Activity extends AppCompatActivity {
 
         if(null != userId && !"".equals(userId)) {
             RetroInterface retroInterface = RetroClient.getApiService();
-            LoginVO loginVO = new LoginVO(userId, "");
+            LoginVO loginVO = new LoginVO(userId, "", "");
             loginVO.setUserId(userId);
 
             try {
