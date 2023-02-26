@@ -64,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                 user_id = userId.getText().toString();
                 user_pass = userPass.getText().toString();
                 token = PreferenceManager.getString(getApplicationContext(), "token");
+                Log.d("FCM", "token : " + token);
 
                 if(null != user_id && !"".equals(user_id) && null != user_pass && !"".equals(user_pass)) {
                     // 사용자 아이디, 비밀번호가 있을 경우 로그인 처리 및 세션 처리 진행

@@ -31,14 +31,15 @@ public class MessagingService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
 
-        if (message.getNotification() != null) {
-            System.out.println("Message Notification Body: " + message.getNotification().getBody());
+        if (message.getData() != null) {
+            System.out.println("Message Notification Body: " + message.getData().get("data"));
+            Log.i("FCM", "notification : " + message.getData().get("data"));
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
-        sendNotification(message.getFrom(), message.getNotification().getBody());
-        sendNotification(message.getNotification().getBody());
+        sendNotification(message.getFrom(), message.getData().get("data"));
+        sendNotification(message.getData().get("data"));
     }
 
     @Override
